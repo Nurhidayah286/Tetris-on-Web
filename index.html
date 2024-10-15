@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Web Version</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js"></script>
+    <style>
+        #canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="300" height="600"></canvas>
+    <script type="text/javascript">
+        async function main() {
+            let pyodide = await loadPyodide();
+            await pyodide.loadPackage("numpy");
+            
+            const response = await fetch("tetris.py");
+            const pythonCode = await response.text();
+            
+            pyodide.runPython(`
+                import js
+                import pyodide
+                import asyncio
+
+                ${pythonCode}
+
+                canvas = js.document.getElementById('canvas')
+                pygame = PyGameWeb(canvas)
+                asyncio.ensure_future(main())
+            `);
+        }
+        main();
+    </script>
+</body>
+</html>
